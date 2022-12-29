@@ -14,6 +14,7 @@ import {
   Box,
   Fab,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import TextBlock from './blocks/TextBlock';
 import { emptyBlocks } from './consts';
 import GalleryBlock from './blocks/GalleryBlock';
@@ -21,7 +22,7 @@ import MapBlock from './blocks/MapBlock';
 import './App.css';
 import { theme } from './theme';
 import ImageBlock from './blocks/ImageBlock';
-import CloseIcon from '@mui/icons-material/Close';
+import YouTubeBlock from './blocks/YouTubeBlock';
 
 function App() {
   const [isEdit, setEdit] = useState(true);
@@ -84,6 +85,15 @@ function App() {
       case 'image': {
         return (
           <ImageBlock
+            block={block}
+            isEdit={isEdit}
+            onChange={(newBlock) => handleBlockChange(newBlock, i)}
+          />
+        );
+      }
+      case 'youtube': {
+        return (
+          <YouTubeBlock
             block={block}
             isEdit={isEdit}
             onChange={(newBlock) => handleBlockChange(newBlock, i)}
@@ -153,6 +163,7 @@ function App() {
             <MenuItem onClick={() => handleSelect('image')}>Image</MenuItem>
             <MenuItem onClick={() => handleSelect('gallery')}>Gallery</MenuItem>
             <MenuItem onClick={() => handleSelect('map')}>Map</MenuItem>
+            <MenuItem onClick={() => handleSelect('youtube')}>YouTube</MenuItem>
           </Menu>
         </Stack>
       </Container>
