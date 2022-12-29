@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-  createTheme,
   CssBaseline,
   ThemeProvider,
   FormGroup,
@@ -11,15 +10,18 @@ import {
   Menu,
   MenuItem,
   Stack,
+  Paper,
+  Box,
+  Fab,
 } from '@mui/material';
-import PlusIcon from '@mui/icons-material/Add';
 import TextBlock from './blocks/TextBlock';
 import { emptyBlocks } from './consts';
 import GalleryBlock from './blocks/GalleryBlock';
 import MapBlock from './blocks/MapBlock';
 import './App.css';
-
-const theme = createTheme();
+import { theme } from './theme';
+import ImageBlock from './blocks/ImageBlock';
+import CloseIcon from '@mui/icons-material/Close';
 
 function App() {
   const [isEdit, setEdit] = useState(true);
@@ -45,6 +47,10 @@ function App() {
     });
   };
 
+  const handleBlockRemove = (index) => {
+    setBlocks((prev) => prev.filter((b, i) => i !== index));
+  };
+
   const getBlockByType = (block, i) => {
     switch (block.type) {
       case 'text':
@@ -52,7 +58,6 @@ function App() {
           <TextBlock
             isEdit={isEdit}
             block={block}
-            key={i}
             onChange={(body) => {
               handleBlockChange({ ...block, body }, i);
             }}
@@ -62,7 +67,6 @@ function App() {
         return (
           <GalleryBlock
             block={block}
-            key={i}
             isEdit={isEdit}
             onChange={(newBlock) => handleBlockChange(newBlock, i)}
           />
@@ -72,7 +76,15 @@ function App() {
         return (
           <MapBlock
             block={block}
-            key={i}
+            isEdit={isEdit}
+            onChange={(newBlock) => handleBlockChange(newBlock, i)}
+          />
+        );
+      }
+      case 'image': {
+        return (
+          <ImageBlock
+            block={block}
             isEdit={isEdit}
             onChange={(newBlock) => handleBlockChange(newBlock, i)}
           />
@@ -87,12 +99,12 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Container
-        component="main"
+        component={Paper}
+        elevation={4}
         sx={{
-          borderLeft: '1px solid black',
-          borderRight: '1px solid black',
           paddingTop: 3,
           paddingBottom: 3,
+          minHeight: '100vh',
         }}
       >
         <Stack direction="column" gap={4}>
@@ -102,15 +114,30 @@ function App() {
               label="Is edit mode"
             />
           </FormGroup>
-          {blocks.map(getBlockByType)}
+          {blocks.map((block, i) => (
+            <Box sx={{ position: 'relative' }} key={i}>
+              {getBlockByType(block, i)}
+              <Fab
+                sx={{ position: 'absolute', top: 0, right: 0, transform: 'translate(30%, -30%)' }}
+                color="secondary"
+                size="small"
+                onClick={() => handleBlockRemove(i)}
+              >
+                <CloseIcon />
+              </Fab>
+            </Box>
+          ))}
           {isEdit && (
             <Button
               id="add-button"
               size="large"
-              startIcon={<PlusIcon />}
               variant="contained"
               onClick={handleClick}
+              xs={{ display: 'flex', alignItems: 'center' }}
             >
+              <span style={{ fontSize: 20, marginRight: 10, position: 'relative', top: -1 }}>
+                +
+              </span>
               Add block
             </Button>
           )}
@@ -123,6 +150,7 @@ function App() {
             }}
           >
             <MenuItem onClick={() => handleSelect('text')}>Text</MenuItem>
+            <MenuItem onClick={() => handleSelect('image')}>Image</MenuItem>
             <MenuItem onClick={() => handleSelect('gallery')}>Gallery</MenuItem>
             <MenuItem onClick={() => handleSelect('map')}>Map</MenuItem>
           </Menu>

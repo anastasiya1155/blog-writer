@@ -41,13 +41,13 @@ const GalleryBlock = ({ isEdit, block, onChange }) => {
 
   return isEdit ? (
     <Box>
-      <Button variant="contained" component="label" sx={{ marginBottom: 1 }}>
+      <Button variant="contained" component="label" sx={{ marginBottom: 2 }} color="secondary">
         Upload Files
         <input type="file" hidden accept="image/*" multiple onChange={onFilesChange} />
       </Button>
       <Stack gap={2}>
         {block.imageUrls.map((img, i) => (
-          <Box key={i} sx={{ maxWidth: '100%' }}>
+          <Box key={i} sx={{ maxWidth: 850, margin: 'auto' }}>
             <img src={img.url} alt={img.caption} width="100%" />
             <Stack gap={2} direction="row">
               <TextField
@@ -57,7 +57,12 @@ const GalleryBlock = ({ isEdit, block, onChange }) => {
                 placeholder="Caption"
                 variant="standard"
               />
-              <Button onClick={() => onImageRemoved(i)} sx={{ flexShrink: 0 }}>
+              <Button
+                onClick={() => onImageRemoved(i)}
+                sx={{ flexShrink: 0 }}
+                variant="contained"
+                color="secondary"
+              >
                 Remove image
               </Button>
             </Stack>

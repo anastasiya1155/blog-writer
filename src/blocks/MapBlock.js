@@ -20,6 +20,8 @@ const MapBlock = ({ isEdit, block, onChange }) => {
       value={[block.lat, block.lng].join(', ')}
       onChange={handleChange}
       placeholder="Lat, lng"
+      fullWidth
+      label="Coords (lat, lng)"
     />
   ) : (
     <Box sx={{ width: '100%', height: 600 }}>
