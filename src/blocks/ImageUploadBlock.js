@@ -1,10 +1,11 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 
 const ImageBlock = ({ isEdit, onChange, block }) => {
-  const onImageChange = (e) => {
+  const onFileChange = (e) => {
     onChange({
       ...block,
-      imageUrl: { ...block.imageUrl, url: e.target.value },
+      image: e.target.files[0],
+      imageUrl: { url: URL.createObjectURL(e.target.files[0]), caption: '' },
     });
   };
 
@@ -17,8 +18,11 @@ const ImageBlock = ({ isEdit, onChange, block }) => {
 
   return isEdit ? (
     <Box>
-      <TextField value={block.imageUrl.url} onChange={onImageChange} label="Image url" fullWidth />
-      <Box sx={{ maxWidth: 850, margin: 'auto', marginTop: 2 }}>
+      <Button variant="contained" component="label" sx={{ marginBottom: 2 }} color="secondary">
+        Upload Image
+        <input type="file" hidden accept="image/*" onChange={onFileChange} />
+      </Button>
+      <Box sx={{ maxWidth: 850, margin: 'auto' }}>
         <img src={block.imageUrl.url} alt={block.imageUrl.caption} width="100%" />
         <TextField
           value={block.imageUrl.caption}

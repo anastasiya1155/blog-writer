@@ -127,14 +127,16 @@ function App() {
           {blocks.map((block, i) => (
             <Box sx={{ position: 'relative' }} key={i}>
               {getBlockByType(block, i)}
-              <Fab
-                sx={{ position: 'absolute', top: 0, right: 0, transform: 'translate(30%, -30%)' }}
-                color="secondary"
-                size="small"
-                onClick={() => handleBlockRemove(i)}
-              >
-                <CloseIcon />
-              </Fab>
+              {isEdit && (
+                <Fab
+                  sx={{ position: 'absolute', top: 0, right: 0, transform: 'translate(30%, -30%)' }}
+                  color="secondary"
+                  size="small"
+                  onClick={() => handleBlockRemove(i)}
+                >
+                  <CloseIcon />
+                </Fab>
+              )}
             </Box>
           ))}
           {isEdit && (
