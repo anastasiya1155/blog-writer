@@ -143,7 +143,7 @@ function App() {
               size="large"
               variant="contained"
               onClick={handleClick}
-              xs={{ display: 'flex', alignItems: 'center' }}
+              sx={{ display: 'flex', alignItems: 'center' }}
             >
               <span style={{ fontSize: 20, marginRight: 10, position: 'relative', top: -1 }}>
                 +

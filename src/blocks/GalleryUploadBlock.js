@@ -11,12 +11,14 @@ const slideNumberStyle = {
 };
 
 const GalleryBlock = ({ isEdit, block, onChange }) => {
-  const onImagesChange = (e, i) => {
-    const newImages = [...block.imageUrls];
-    newImages[i].url = e.target.value;
+  const onFilesChange = (e) => {
     onChange({
       ...block,
-      imageUrls: newImages,
+      images: [...block.images, ...e.target.files],
+      imageUrls: [
+        ...block.imageUrls,
+        ...[...e.target.files].map((img) => ({ url: URL.createObjectURL(img), caption: '' })),
+      ],
     });
   };
 
@@ -37,21 +39,15 @@ const GalleryBlock = ({ isEdit, block, onChange }) => {
     });
   };
 
-  const onImageAdded = () => {
-    onChange({ ...block, imageUrls: [...block.imageUrls, { url: '', caption: '' }] });
-  };
-
   return isEdit ? (
     <Box>
+      <Button variant="contained" component="label" sx={{ marginBottom: 2 }} color="secondary">
+        Upload Files
+        <input type="file" hidden accept="image/*" multiple onChange={onFilesChange} />
+      </Button>
       <Stack gap={2}>
         {block.imageUrls.map((img, i) => (
-          <Box key={i} sx={{ maxWidth: 850, margin: 'auto', width: '100%' }}>
-            <TextField
-              value={img.url}
-              onChange={(e) => onImagesChange(e, i)}
-              label="Image url"
-              fullWidth
-            />
+          <Box key={i} sx={{ maxWidth: 850, margin: 'auto' }}>
             <img src={img.url} alt={img.caption} width="100%" />
             <Stack gap={2} direction="row">
               <TextField
@@ -72,16 +68,6 @@ const GalleryBlock = ({ isEdit, block, onChange }) => {
             </Stack>
           </Box>
         ))}
-        <Button
-          variant="contained"
-          onClick={onImageAdded}
-          sx={{ display: 'flex', alignItems: 'center', alignSelf: 'start' }}
-          size="small"
-          color="secondary"
-        >
-          <span style={{ fontSize: 20, marginRight: 10, position: 'relative', top: -1 }}>+</span>
-          Add image
-        </Button>
       </Stack>
     </Box>
   ) : (
