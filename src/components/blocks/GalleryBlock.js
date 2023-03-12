@@ -1,5 +1,6 @@
 import { Box, Button, Stack, TextField } from '@mui/material';
 import { Carousel } from 'react-carousel-minimal';
+import { patchArticleBlock } from '../../api/routes';
 
 const captionStyle = {
   fontSize: '2em',
@@ -30,15 +31,21 @@ const GalleryBlock = ({ isEdit, block, onChange }) => {
   };
 
   const onImageRemoved = (index) => {
+    const newImageUrls = block.imageUrls.filter((img, i) => i !== index);
     onChange({
       ...block,
       images: block.images.filter((img, i) => i !== index),
-      imageUrls: block.imageUrls.filter((img, i) => i !== index),
+      imageUrls: newImageUrls,
     });
+    patchArticleBlock(block.id, { data: JSON.stringify({ imageUrls: newImageUrls }) });
   };
 
   const onImageAdded = () => {
     onChange({ ...block, imageUrls: [...block.imageUrls, { url: '', caption: '' }] });
+  };
+
+  const handleBlur = () => {
+    patchArticleBlock(block.id, { data: JSON.stringify({ imageUrls: block.imageUrls }) });
   };
 
   return isEdit ? (
@@ -51,6 +58,7 @@ const GalleryBlock = ({ isEdit, block, onChange }) => {
               onChange={(e) => onImagesChange(e, i)}
               label="Image url"
               fullWidth
+              onBlur={handleBlur}
             />
             <img src={img.url} alt={img.caption} width="100%" />
             <Stack gap={2} direction="row">
@@ -60,6 +68,7 @@ const GalleryBlock = ({ isEdit, block, onChange }) => {
                 fullWidth
                 placeholder="Caption"
                 variant="standard"
+                onBlur={handleBlur}
               />
               <Button
                 onClick={() => onImageRemoved(i)}

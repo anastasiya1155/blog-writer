@@ -1,175 +1,60 @@
-import { useState } from 'react';
-import {
-  CssBaseline,
-  ThemeProvider,
-  FormGroup,
-  FormControlLabel,
-  Switch,
-  Container,
-  Button,
-  Menu,
-  MenuItem,
-  Stack,
-  Paper,
-  Box,
-  Fab,
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import TextBlock from './blocks/TextBlock';
-import { emptyBlocks } from './consts';
-import GalleryBlock from './blocks/GalleryBlock';
-import MapBlock from './blocks/MapBlock';
-import './App.css';
+import { useMemo, useState } from 'react';
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import { Route, BrowserRouter as Router, Routes, Outlet } from 'react-router-dom';
 import { theme } from './theme';
-import ImageBlock from './blocks/ImageBlock';
-import YouTubeBlock from './blocks/YouTubeBlock';
+import Blog from './pages/Blog';
+import AuthRoot, { authLoader } from './pages/Auth';
+import LoginPage from './pages/Auth/Login';
+import RegistrationPage from './pages/Auth/Registration';
+import CheckAuth from './pages/Auth/CheckAuth';
+import ErrorSnackbar from './components/ErrorSnackbar';
+import './App.css';
+import ArticlesList from './pages/ArticlesList';
+import AuthContext from './context/AuthContext';
+import Layout from './components/Layout';
 
 function App() {
-  const [isEdit, setEdit] = useState(true);
-  const [blocks, setBlocks] = useState([]);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-  const handleSelect = (type) => {
-    setBlocks((prev) => [...prev, emptyBlocks[type]()]);
-    handleClose();
-  };
+  const [error, setError] = useState('');
+  const [user, setUser] = useState(null);
 
-  const handleBlockChange = (newBlock, i) => {
-    setBlocks((prev) => {
-      const newBlocks = [...prev];
-      newBlocks[i] = newBlock;
-      return newBlocks;
-    });
-  };
-
-  const handleBlockRemove = (index) => {
-    setBlocks((prev) => prev.filter((b, i) => i !== index));
-  };
-
-  const getBlockByType = (block, i) => {
-    switch (block.type) {
-      case 'text':
-        return (
-          <TextBlock
-            isEdit={isEdit}
-            block={block}
-            onChange={(body) => {
-              handleBlockChange({ ...block, body }, i);
-            }}
-          />
-        );
-      case 'gallery': {
-        return (
-          <GalleryBlock
-            block={block}
-            isEdit={isEdit}
-            onChange={(newBlock) => handleBlockChange(newBlock, i)}
-          />
-        );
-      }
-      case 'map': {
-        return (
-          <MapBlock
-            block={block}
-            isEdit={isEdit}
-            onChange={(newBlock) => handleBlockChange(newBlock, i)}
-          />
-        );
-      }
-      case 'image': {
-        return (
-          <ImageBlock
-            block={block}
-            isEdit={isEdit}
-            onChange={(newBlock) => handleBlockChange(newBlock, i)}
-          />
-        );
-      }
-      case 'youtube': {
-        return (
-          <YouTubeBlock
-            block={block}
-            isEdit={isEdit}
-            onChange={(newBlock) => handleBlockChange(newBlock, i)}
-          />
-        );
-      }
-      default:
-        return null;
-    }
-  };
+  const authContextValue = useMemo(() => ({ user, setUser }), [user]);
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Container
-        component={Paper}
-        elevation={4}
-        sx={{
-          paddingTop: 3,
-          paddingBottom: 3,
-          minHeight: '100vh',
-        }}
-      >
-        <Stack direction="column" gap={4}>
-          <FormGroup>
-            <FormControlLabel
-              control={<Switch checked={isEdit} onChange={(e) => setEdit(e.target.checked)} />}
-              label="Is edit mode"
-            />
-          </FormGroup>
-          {blocks.map((block, i) => (
-            <Box sx={{ position: 'relative' }} key={i}>
-              {getBlockByType(block, i)}
-              {isEdit && (
-                <Fab
-                  sx={{ position: 'absolute', top: 0, right: 0, transform: 'translate(30%, -30%)' }}
-                  color="secondary"
-                  size="small"
-                  onClick={() => handleBlockRemove(i)}
-                >
-                  <CloseIcon />
-                </Fab>
-              )}
-            </Box>
-          ))}
-          {isEdit && (
-            <Button
-              id="add-button"
-              size="large"
-              variant="contained"
-              onClick={handleClick}
-              sx={{ display: 'flex', alignItems: 'center' }}
+    <AuthContext.Provider value={authContextValue}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router>
+          <Routes>
+            <Route path="/auth" loader={authLoader} element={<AuthRoot />}>
+              <Route path="login" element={<LoginPage setError={setError} />} />
+              <Route path="registration" element={<RegistrationPage setError={setError} />} />
+            </Route>
+            <Route
+              path="/"
+              element={
+                <Layout>
+                  <Outlet />
+                </Layout>
+              }
             >
-              <span style={{ fontSize: 20, marginRight: 10, position: 'relative', top: -1 }}>
-                +
-              </span>
-              Add block
-            </Button>
-          )}
-          <Menu
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            MenuListProps={{
-              'aria-labelledby': 'add-button',
-            }}
-          >
-            <MenuItem onClick={() => handleSelect('text')}>Text</MenuItem>
-            <MenuItem onClick={() => handleSelect('image')}>Image</MenuItem>
-            <MenuItem onClick={() => handleSelect('gallery')}>Gallery</MenuItem>
-            <MenuItem onClick={() => handleSelect('map')}>Map</MenuItem>
-            <MenuItem onClick={() => handleSelect('youtube')}>YouTube</MenuItem>
-          </Menu>
-        </Stack>
-      </Container>
-    </ThemeProvider>
+              <Route path="/article/:id">
+                <Route
+                  path="edit"
+                  element={
+                    <CheckAuth>
+                      <Blog isEdit />
+                    </CheckAuth>
+                  }
+                />
+                <Route path="" index element={<Blog />} />
+              </Route>
+              <Route path="/" index element={<ArticlesList />} />
+            </Route>
+          </Routes>
+          <ErrorSnackbar error={error} setError={setError} />
+        </Router>
+      </ThemeProvider>
+    </AuthContext.Provider>
   );
 }
 

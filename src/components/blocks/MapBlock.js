@@ -1,5 +1,6 @@
 import { Box, TextField } from '@mui/material';
 import GoogleMapReact from 'google-map-react';
+import { patchArticleBlock } from '../../api/routes';
 
 const MapBlock = ({ isEdit, block, onChange }) => {
   const handleApiLoaded = ({ map, maps }) => {
@@ -15,6 +16,10 @@ const MapBlock = ({ isEdit, block, onChange }) => {
     onChange({ ...block, lat: Number(lat), lng: Number(lng) });
   };
 
+  const handleBlur = () => {
+    patchArticleBlock(block.id, { data: JSON.stringify({ lat: block.lat, lng: block.lng }) });
+  };
+
   return isEdit ? (
     <TextField
       value={[block.lat, block.lng].join(', ')}
@@ -22,6 +27,7 @@ const MapBlock = ({ isEdit, block, onChange }) => {
       placeholder="Lat, lng"
       fullWidth
       label="Coords (lat, lng)"
+      onBlur={handleBlur}
     />
   ) : (
     <Box sx={{ width: '100%', height: 600 }}>

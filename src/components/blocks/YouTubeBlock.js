@@ -1,6 +1,11 @@
 import { TextField } from '@mui/material';
+import { patchArticleBlock } from '../../api/routes';
 
 const YouTubeBlock = ({ isEdit, block, onChange }) => {
+  const handleBlur = () => {
+    patchArticleBlock(block.id, { data: JSON.stringify({ embedId: block.embedId }) });
+  };
+
   return isEdit ? (
     <TextField
       value={block.embedId}
@@ -12,6 +17,7 @@ const YouTubeBlock = ({ isEdit, block, onChange }) => {
           embedId: e.target.value.length > 11 ? e.target.value.slice(11) : e.target.value,
         });
       }}
+      onBlur={handleBlur}
     />
   ) : (
     <div className="video-responsive" key={block.embedId}>
